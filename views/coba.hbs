@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<h>Anda Login Sebagai {{nama}}</h>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat.io</title>
+
+    <link type="text/css" rel="stylesheet" href="/materialize/css/materialize.min.css"  media="screen,projection"/>
+    <style>
+        body
+        {
+            background: #f5f5f5;
+        }
+
+        h5
+        {
+            font-weight: 400;
+        }
+
+        .container
+        {
+            margin-top: 10px;
+            width: 900px;
+            height: 600px;
+        }
+
+        .tabs .indicator
+        {
+            background-color: #e0f2f1;
+            height: 60px;
+            opacity: 0.3;
+
+        }
+
+        .form-container
+        {
+            padding: 40px;
+            padding-top: 10px;
+        }
+
+        .confirmation-tabs-btn
+        {
+            position: absolute;
+        }
+
+        #chatWindow{
+            height: 350px;
+            overflow-y: scroll;
+            width: 100%;
+        }
+
+        #chatWindowP{
+            height: 350px;
+            overflow-y: scroll;
+            width: 100%;
+        }
+
+        #users{
+            height: 400px;
+            overflow-y: scroll;
+            width: 100%;
+        }
+        #selectFriend{
+            width:30%;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container white z-depth-2">
+    <p id="username" style="display: none">{{nama}}</p>
+    <ul class="tabs teal">
+        <li class="tab col s3"><a class="white-text active" href="#chatpersonal">Personal</a></li>
+        <li class="tab col s3"><a class="white-text" href="#chatgrup">Grup</a></li>
+        <li class="tab col s3"><a class="white-text" href="#onlineuser">Online</a></li>
+        <li class="tab col s3" style='float: right;'><a class="white-text" href="/logout">Logout</a></li>
+    </ul>
+    <div id="chatpersonal" class="col s12">
+        <div class="form-container">
+            <h3 class="teal-text">Message Personal..</h3>
+            <div id="chatWindowP"></div>
+            <form id ="messageFormP" class="row">
+                <div id="selectFriend" class="input-field col s2" onchange="myFunction()">
+                    <select id="selectFriends">
+                        <option value="" disabled selected>Select friend</option>
+                        <option value="1">Option 1</option>
+                        <option value="2">Option 2</option>
+                        <option value="3">Option 3</option>
+                    </select>
+                    <label>Friend</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="messageP" type="text" value="">
+                    <label for="messageP">Type Something....</label>
+                    <p id="demo"></p>
+                </div>
+                <div class="input-field col s2">
+                    <button class="btn waves-effect waves-light teal" type="submit" style="float: right;">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="chatgrup" class="col s12">
+        <div class="form-container">
+            <h3 class="teal-text">Message Grup..</h3>
+            <div id="chatWindow"></div>
+            <form id ="messageForm" class="row">
+                <div class="input-field col s10">
+                    <input id="message" type="text" class="validate" >
+                    <label for="message">Type Something....</label>
+                </div>
+                <div class="input-field col s2">
+                    <button class="btn waves-effect waves-light teal" type="submit" style="float: right;">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="onlineuser" class="col s12">
+        <form class="col s12">
+            <div class="form-container">
+                <h3 class="teal-text">Online Users</h3>
+                <div id="users"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script src="/jquery/jquery.min.js"></script>
+<script src="../socket.io/socket.io.js"></script>
+<script type="text/javascript" src="/materialize/js/materialize.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('select').material_select();
+    });
+
+    function myFunction() {
+        var x = document.getElementById("selectFriends").value;
+        document.getElementById("messageP").value = "/w ";
+    }
+</script>
+<script>
+    $(function(){
+        var socket = io.connect();
+        var $messageForm = $('#messageForm');
+        var $messageFormP = $('#messageFormP');
+        var $message = $('#message');
+        var $messageP = $('#messageP');
+        var $chat = $('#chatWindow');
+        var $chatP = $('#chatWindowP');
+        var $usernameForm = $('#usernameForm');
+        var $users = $('#users');
+        var $username = $('#username');
+        var $error = $('#error');
+
+        socket.emit('new user', $username.html(),function(data){
+
+        });
+
+        socket.on('usernames',function(data){
+            var html ="";
+            for (i = 1; i<data.length; i++) {
+                html += data[i] +'<br>'+'<br>';
+            }
+            $users.html(html);
+        });
+
+        $messageForm.submit(function(e){
+            e.preventDefault();
+            socket.emit('send message',{msg:$message.val(),user: $username.html()});
+            $message.val('');
+        });
+
+        $messageFormP.submit(function(e){
+            e.preventDefault();
+            //document.getElementById("messageP").value = "/w ";
+            socket.emit('send messageP',{msg:$messageP.val(),user: $username.html()}, function(data){
+                $chatP.append('<span class = "error">'+data+'</span><br>');
+            });
+            $messageP.val('');
+        });
+
+        socket.on('new message',function(data){
+            // iterasi array
+            var chats = ""
+            data.msg.map(msg => {
+                chats += '<span class = "msg"><b>'+msg.user +': </b> '+'<br>'+msg.msg+'</span><br>'
+
+        })
+            $chat.html(chats);
+
+        });
+
+        socket.on('whisper',function(data){
+            // iterasi array
+            var chats = ""
+            data.msg.map(msg => {
+                chats += '<span class = "whisper"><b>'+msg.user +': </b> '+'<br>'+msg.msg+'</span><br>'
+
+        })
+            $chatP.html(chats);
+
+
+        });
+
+        // notif
+        socket.on('notify whisper', function (data) {
+            notifyMe(data.user, data.msg);
+
+        });
+
+        function notifyMe(user,message) {
+            // Let's check if the browser supports notifications
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+            }
+            // Let's check if the user is okay to get some notification
+            else if (Notification.permission === "granted") {
+                // If it's okay let's create a notification
+                var options = {
+                    body: message,
+                    dir : "ltr"
+                };
+                var notification = new Notification(user + " Send New Message",options);
+            }
+            // Otherwise, we need to ask the user for permission
+            // Note, Chrome does not implement the permission static property
+            // So we have to check for NOT 'denied' instead of 'default'
+            else if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    // Whatever the user answers, we make sure we store the information
+                    if (!('permission' in Notification)) {
+                        Notification.permission = permission;
+                    }
+                    // If the user is okay, let's create a notification
+                    if (permission === "granted") {
+                        var options = {
+                            body: message,
+                            dir : "ltr"
+                        };
+                        var notification = new Notification(user + " Send New Message",options);
+                    }
+                });
+            }
+            // At last, if the user already denied any notification, and you
+            // want to be respectful there is no need to bother them any more.
+        }
+
+    });
+
+</script>
+</body>
+</html>

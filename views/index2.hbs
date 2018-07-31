@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<h>Anda Login Sebagai {{nama}}</h>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat.io</title>
+<style>
+  body{
+    background: #f9f9f9;
+  }
+
+  #container{
+    width: 700px;
+    margin: 0 auto;
+  }
+
+  #chatWindowPrivate{
+    height: 300px;
+    overflow: scroll;
+    width: 350px
+  }
+
+  #mainWrapper{
+    
+  }
+
+  #chatWrapper{
+    float: left;
+    border: 1px #ccc solid;
+    border-radius: 10px;
+    background: #f4f4f4;
+    padding: 10px;
+  }
+
+  #userWrapper{
+    float: left;
+    border: 1px #ccc solid;
+    border-radius: 10px;
+    background: #f4f4f4;
+    padding: 10px;
+    margin-left: 20px;
+    width: 200px;
+    height: 350px;
+    overflow: scroll;
+  }
+
+  #error{
+    color: red;
+  }
+
+  #namesWrapper{
+    float: left;
+    border: 1px #ccc solid;
+    border-radius: 10px;
+    background: #f4f4f4;
+    padding: 10px;
+    margin-left:20px;
+      
+  }
+
+  .error{
+    color: red;
+  }
+
+  .whisper{
+    color: gray;
+    font-style: italic;
+  }
+
+  input{
+    height: 30px;
+  }
+
+
+</style>
+</head>
+<body>
+  <div id= "container"> 
+    
+<p id="username" style="display: none">{{nama1}}</p>
+    <div id = "mainWrapper">
+        <div id="chatWrapper"> 
+        <h2>Message..</h2>
+          <div id="chatWindowPrivate"></div>
+          <form id ="messageForm">
+            <input size="35" id="message" placeholder="Type Something...">
+            <input type="submit" value="Say It!">
+          </form>
+        </div>
+        <div id="userWrapper">
+        <h2>Online  ..</h2>
+          <div id="users"></div>  
+        </div>
+    </div>
+  </div>
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="../socket.io/socket.io.js"></script>
+    <script>
+      $(function(){
+        var socket = io.connect();
+        var $messageForm = $('#messageForm');
+        var $message = $('#message');
+        var $chat = $('#chatWindowPrivate');
+        var $usernameForm = $('#usernameForm');
+        var $users = $('#users');
+        var $username = $('#username');
+        var $error = $('#error');
+
+        
+          socket.emit('new user', $username.html(),function(data){
+          
+          });        
+
+        socket.on('usernames',function(data){
+          var html ="";
+          for (i = 1; i<data.length; i++) {
+            html += data[i] +'<br>'+'<br>';
+          }
+          $users.html(html);
+        });
+
+        $messageForm.submit(function(e){
+          e.preventDefault();
+         socket.emit('send message',{msg:$message.val(),user: $username.html()}, function(data){
+              $chat.append('<span class = "error">'+data+'</span><br>');
+             });
+          $message.val('');
+        });
+
+         socket.on('new message',function(data){
+          // iterasi array
+          var chats = ""
+            data.msg.map(msg => {
+              chats += '<span class = "msg"><b>'+msg.user +': </b> '+'<br>'+msg.msg+'</span><br>'
+              
+            })
+            $chat.html(chats);
+   
+        });
+
+         socket.on('whisper',function(data){
+           // iterasi array        
+                var chats = ""
+            data.msg.map(msg => {
+              chats += '<span class = "whisper"><b>'+msg.user +': </b> '+'<br>'+msg.msg+'</span><br>'
+              
+            })
+            $chat.html(chats);
+        });
+      });
+     
+    </script>
+</body>
+</html>

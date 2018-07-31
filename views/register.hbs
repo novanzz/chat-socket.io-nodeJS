@@ -1,0 +1,174 @@
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/materialize/css/materialize.min.css"  media="screen,projection"/>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        body {
+            background: #fff;
+        }
+
+        .input-field input[type=date]:focus + label,
+        .input-field input[type=text]:focus + label,
+        .input-field input[type=email]:focus + label,
+        .input-field input[type=password]:focus + label {
+            color: #e91e63;
+        }
+
+        .input-field input[type=date]:focus,
+        .input-field input[type=text]:focus,
+        .input-field input[type=email]:focus,
+        .input-field input[type=password]:focus {
+            border-bottom: 2px solid #e91e63;
+            box-shadow: none;
+        }
+
+        #message {
+            display:none;
+        }
+
+        /* Add a green text color and a checkmark when the requirements are right */
+        .valid {
+            color: green;
+        }
+
+        .valid:before {
+            position: relative;
+            left: -10px;
+            content: "✔";
+        }
+
+        /* Add a red text color and an "x" when the requirements are wrong */
+        .invalid {
+            color: red;
+        }
+
+        .invalid:before {
+            position: relative;
+            left: -10px;
+            content: "✖";
+        }
+    </style>
+</head>
+
+<body>
+<form role="form" method="post" action="/register">
+<div class="section"></div>
+<main>
+    <center>
+        <div class="container">
+            <div class="z-depth-1 grey lighten-4 row" style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
+
+                <div class="section"></div>
+
+                <h5 class="indigo-text">Register to make your account</h5>
+
+                <form class="col s11" method="post" action="/">
+                    <div class='row'>
+                        <div class='col s12'>
+                        </div>
+                    </div>
+
+                    <div class='row'>
+                        <div class='input-field col s12'>
+                            <input class='validate' type='text' id="uname" name="username" required />
+                            <label for='email'>Enter your username</label>
+                        </div>
+                    </div>
+
+                    <div class='row'>
+                        <div class='input-field col s12'>
+                            <input class='validate' type='password' id="password" name="password" required />
+                            <label for='password'>Enter your password</label>
+                        </div>
+
+                    </div>
+
+                    <div class='row'>
+                        <div class='input-field col s12'>
+                            <input class='validate' type='password' id="cfmpass" name="cfmpass" required />
+                            <label for='password'>Enter your password again</label>
+                        </div>
+                    </div>
+                    <div class='row col s12' id="message">
+                        <p ><center id="length" class="invalid">Password <b>must be same</b></center></p>
+                    </div>
+                    <center>
+                        <div class='row'>
+                            <button type='submit' name='btn_login' class='col s12 btn btn-large waves-effect indigo'>submit</button>
+                        </div>
+                    </center>
+                </form>
+
+            </div>
+        </div>
+
+
+        <a href="/">Already have an account? Login</a>
+    </center>
+
+    <div class="section"></div>
+    <div class="section"></div>
+</main>
+</form>
+
+<script type="text/javascript" src="/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/materialize/js/materialize.min.js"></script>
+<script>
+    var myInput = document.getElementById("password");
+    var myInputUname = document.getElementById("cfmpass");
+    var length = document.getElementById("length");
+
+
+
+    // When the user clicks on the password field, show the message box
+    myInputUname.onfocus = function() {
+        document.getElementById("message").style.display = "block";
+    }
+    myInput.onfocus = function() {
+        document.getElementById("message").style.display = "block";
+    }
+
+    // When the user clicks outside of the password field, hide the message box
+    myInputUname.onblur = function() {
+        document.getElementById("message").style.display = "none";
+    }
+    myInput.onblur = function() {
+        document.getElementById("message").style.display = "none";
+    }
+
+    // When the user starts to type something inside the password field
+    myInputUname.onkeyup = function() {
+        // Validate length
+        if(myInputUname.value == myInput.value) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+    }
+    myInput.onkeyup = function() {
+        // Validate length
+        if (myInputUname.value == myInput.value) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+    }
+</script>
+</body>
+
+</html>
